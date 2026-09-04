@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CauseConnect Design System Tokens & Base Styles */
+@layer base {
+    body {
+        font-family: 'Open Sans', system-ui, sans-serif;
+        color: #1E3A5F;
+        background-color: #F8FAFC;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Nunito', sans-serif;
+        color: #1E3A5F;
+    }
+}
+
+@layer components {
+    /* Buttons */
+    .btn-cause-primary {
+        background-color: #059669;
+        color: #FFFFFF;
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-cause-primary:hover {
+        background-color: #047857;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.20);
+    }
+
+    .btn-cause-secondary {
+        background-color: #EA580C;
+        color: #FFFFFF;
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-cause-secondary:hover {
+        background-color: #C2410C;
+        box-shadow: 0 4px 12px rgba(234, 88, 12, 0.20);
+    }
+
+    .btn-cause-ghost {
+        background-color: transparent;
+        color: #059669;
+        border: 2px solid #059669;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-cause-ghost:hover {
+        background-color: rgba(5, 150, 105, 0.08);
+    }
+
+    /* Cards */
+    .cause-card {
+        background-color: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+    }
+    .cause-card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Inputs */
+    .cause-input {
+        border: 1px solid #D1D5DB;
+        border-radius: 8px;
+        background-color: #FFFFFF;
+        padding: 0.5rem 0.75rem;
+        font-family: 'Open Sans', sans-serif;
+        transition: all 0.15s ease;
+    }
+    .cause-input:focus {
+        border-color: #059669;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.20);
+    }
+}
