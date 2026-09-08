@@ -17,7 +17,14 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (!$request->user() || !in_array($request->user()->role, $roles)) {
+        if (!$request->user()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk halaman ini.');
+        }
+
+        $userRole = strtolower($request->user()->role ?? '');
+        $allowedRoles = array_map('strtolower', $roles);
+
+        if (!in_array($userRole, $allowedRoles)) {
             abort(403, 'Anda tidak memiliki hak akses untuk halaman ini.');
         }
 

@@ -63,6 +63,23 @@ return [
             ]) : [],
         ],
 
+        // ponytail: Koneksi ke database user bersama (spk_phapros)
+        'db_auth' => [
+            'driver' => 'mysql',
+            'host' => env('DB2_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB2_PORT', env('DB_PORT', '3306')),
+            'database' => env('DB2_DATABASE', 'spk_phapros'),
+            'username' => env('DB2_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('DB2_PASSWORD', env('DB_PASSWORD', '')),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),
@@ -123,7 +140,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [
