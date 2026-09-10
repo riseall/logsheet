@@ -21,6 +21,9 @@ Route::post('/switch-role', [HomeController::class, 'switchRole'])->name('switch
 Route::prefix('logsheet')->name('logsheet.')->group(function () {
     Route::get('/', [LogsheetController::class, 'index'])->name('index');
     Route::get('/category/{category}', [LogsheetController::class, 'buildings'])->name('buildings');
+    Route::post('/building', [LogsheetController::class, 'storeBuilding'])->name('building.store')->middleware('role:supervisor,admin');
+    Route::put('/building/{building}', [LogsheetController::class, 'updateBuilding'])->name('building.update')->middleware('role:supervisor,admin');
+    Route::delete('/building/{building}', [LogsheetController::class, 'destroyBuilding'])->name('building.destroy')->middleware('role:supervisor,admin');
     Route::get('/category/{category}/building/{building}', [LogsheetController::class, 'machines'])->name('machines');
     Route::get('/machine/{machine}/create', [LogsheetController::class, 'create'])->name('create');
     Route::post('/machine/{machine}', [LogsheetController::class, 'store'])->name('store');

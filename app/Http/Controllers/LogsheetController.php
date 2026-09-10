@@ -31,15 +31,91 @@ class LogsheetController extends Controller
      */
     public function buildings(Kategori $category)
     {
-        $buildings = Bangunan::whereHas('mesins', function ($q) use ($category) {
+        $query = Bangunan::withCount(['mesins' => function ($q) use ($category) {
             $q->where('category_id', $category->id)
               ->where('status_aktif', true);
-        })->withCount(['mesins' => function ($q) use ($category) {
-            $q->where('category_id', $category->id)
-              ->where('status_aktif', true);
-        }])->get();
+        }]);
+
+        $user = auth()->user();
+        if (!($user && ($user->isSupervisor() || $user->isAdmin()))) {
+            $query->whereHas('mesins', function ($q) use ($category) {
+                $q->where('category_id', $category->id)
+                  ->where('status_aktif', true);
+            });
+        }
+
+        $buildings = $query->get();
 
         return view('logsheet.buildings', compact('category', 'buildings'));
+    }
+
+    /**
+     * Tambah Bangunan Baru (Hanya Admin / SPV)
+     */
+    public function storeBuilding(Request $request)
+    {
+        $user = auth()->user();
+        if (!($user && ($user->isSupervisor() || $user->isAdmin()))) {
+            abort(403, 'Unauthorized');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'nullable|string|max:255',
+        ]);
+
+        $nextId = Bangunan::max('id') + 1;
+        $code = 'BLD-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+
+        Bangunan::create([
+            'name' => $request->name,
+            'code' => $code,
+            'location' => $request->location,
+        ]);
+
+        return back()->with('success', 'Bangunan/Gedung baru berhasil ditambahkan.');
+    }
+
+    /**
+     * Edit Bangunan (Hanya Admin / SPV)
+     */
+    public function updateBuilding(Request $request, Bangunan $building)
+    {
+        $user = auth()->user();
+        if (!($user && ($user->isSupervisor() || $user->isAdmin()))) {
+            abort(403, 'Unauthorized');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'nullable|string|max:255',
+        ]);
+
+        $building->update([
+            'name' => $request->name,
+            'location' => $request->location,
+        ]);
+
+        return back()->with('success', 'Data gedung berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus Bangunan (Hanya Admin / SPV)
+     */
+    public function destroyBuilding(Bangunan $building)
+    {
+        $user = auth()->user();
+        if (!($user && ($user->isSupervisor() || $user->isAdmin()))) {
+            abort(403, 'Unauthorized');
+        }
+
+        $mesinCount = $building->mesins()->count();
+        if ($mesinCount > 0) {
+            return back()->with('error', "Gagal dihapus! Gedung ini masih terhubung dengan {$mesinCount} unit mesin (bisa jadi dari kategori lain atau mesin non-aktif).");
+        }
+
+        $building->delete();
+        return back()->with('success', 'Gedung berhasil dihapus.');
     }
 
     /**
