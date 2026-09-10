@@ -30,4 +30,18 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'sso' => [
+        'shared_secret' => env('SSO_SHARED_SECRET'),
+    ],
+
+    'pmmt' => [
+        'url' => env('PMMT_URL'),
+    ],
+
+    // ponytail: Konfigurasi SSO Web Portal PEHA ID
+    'peha' => [
+        'key'  => env('PEHA_ENCRYPT_KEY', 'Passw0rdRahasia'),
+        'salt' => env('PEHA_ENCRYPT_SALT', 'appPeha_salt'),
+    ],
+
 ];
