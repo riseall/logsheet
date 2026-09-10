@@ -203,13 +203,9 @@
     @push('scripts')
         <script>
             function confirmDelete(id) {
-                if (window.Notify) {
-                    Notify.confirm('Hapus Gedung?', 'Pastikan gedung ini tidak memiliki unit mesin di dalamnya!', () => {
-                        document.getElementById('form-delete-' + id).submit();
-                    });
-                } else if (confirm('Hapus Gedung? Pastikan gedung ini tidak memiliki unit mesin di dalamnya!')) {
+                Notify.confirm('Hapus Gedung?', 'Pastikan gedung ini tidak memiliki unit mesin di dalamnya!', () => {
                     document.getElementById('form-delete-' + id).submit();
-                }
+                });
             }
         </script>
     @endpush
