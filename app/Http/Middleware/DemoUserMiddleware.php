@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Kategori;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -12,28 +13,26 @@ class DemoUserMiddleware
 {
     /**
      * Handle an incoming request.
-     * // ponytail: Auth di-bypass sementara menggunakan session demo_user_id untuk mempermudah testing semua role.
-     * // Upgrade path: Ganti dengan auth portal SSO internal sesuai PRD §3.
+     * // ponytail: Share currentUser & demo switch options saat user terotentikasi.
+     * // Upgrade path: Matikan allDemoUsers saat aplikasi naik ke production.
      */
     public function handle(Request $request, Closure $next)
     {
-        $userId = session('demo_user_id');
-        $user = $userId ? User::find($userId) : null;
+        if (Auth::check()) {
+            if (!Auth::user()->role) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
 
-        if (!$user) {
-            $user = User::where('role', 'teknisi')->first() ?? User::first();
-            if ($user) {
-                session(['demo_user_id' => $user->id]);
+                return redirect()->route('login')->withErrors([
+                    'nik' => 'Akun Anda tidak memiliki hak akses (role) di sistem Logsheet.',
+                ]);
             }
+
+            View::share('currentUser', Auth::user());
         }
 
-        if ($user) {
-            Auth::setUser($user);
-            View::share('currentUser', $user);
-            View::share('allDemoUsers', User::all());
-        }
-
-        View::share('navCategories', \App\Models\Kategori::all());
+        View::share('navCategories', Kategori::all());
 
         return $next($request);
     }

@@ -12,7 +12,7 @@ class FormTemplateSeeder extends Seeder
 {
     public function run()
     {
-        $admin = User::where('role', 'admin')->first();
+        $admin = User::role(User::ROLE_ADMIN)->first() ?? User::first();
         if (!$admin) {
             return;
         }

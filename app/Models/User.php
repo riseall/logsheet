@@ -2,79 +2,165 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
+
+    protected $connection = 'db_auth';
+    protected $table = 'mst_anggota';
+    protected $primaryKey = 'id_anggota';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
+     * Kolom-kolom yang dapat diisi.
      */
     protected $fillable = [
-        'name',
+        'nama',
+        'nik',
+        'nip',
         'email',
+        'level_pmmt',
+        'password_hash',
         'password',
-        'role',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
+     * Kolom yang disembunyikan dalam serialisasi.
      */
     protected $hidden = [
         'password',
+        'password_hash',
         'remember_token',
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * Otentikasi password menggunakan password_hash (Bcrypt) atau fallback password.
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
+    public function getAuthPassword()
+    {
+        return $this->password_hash ?? $this->password;
+    }
+
+    /**
+     * Accessor 'name' agar tetap kompatibel dengan layout & view Logsheet ($user->name).
+     */
+    public function getNameAttribute()
+    {
+        return $this->attributes['nama'] ?? $this->attributes['name'] ?? ('User ' . ($this->nik ?? $this->id_anggota));
+    }
+
+    /**
+     * Accessor 'id' agar tetap mengembalikan nilai id_anggota.
+     */
+    public function getIdAttribute()
+    {
+        return $this->attributes['id_anggota'] ?? null;
+    }
+
+    public const ROLE_ADMIN = 'Admin';
+    public const ROLE_SUPERVISOR = 'Supervisor';
+    public const ROLE_MANAGER = 'Manager';
+    public const ROLE_TEKNISI = 'Teknisi';
+
+    public const ROLES = [
+        self::ROLE_ADMIN,
+        self::ROLE_SUPERVISOR,
+        self::ROLE_MANAGER,
+        self::ROLE_TEKNISI,
     ];
+
+    /**
+     * Accessor 'role' baku PMMT: Admin, Supervisor, Manager, Teknisi.
+     * // ponytail: Kembalikan null jika user tidak memiliki role di PMMT/Logsheet.
+     */
+    public function getRoleAttribute()
+    {
+        $role = trim($this->attributes['level_pmmt'] ?? $this->attributes['role'] ?? '');
+        if ($role === '') {
+            return null;
+        }
+
+        if (strcasecmp($role, 'Superuser') === 0 || strcasecmp($role, self::ROLE_ADMIN) === 0) {
+            return self::ROLE_ADMIN;
+        }
+
+        foreach (self::ROLES as $validRole) {
+            if (strcasecmp($role, $validRole) === 0) {
+                return $validRole;
+            }
+        }
+
+        return null;
+    }
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === self::ROLE_ADMIN;
     }
-
     public function isSupervisor(): bool
     {
-        return $this->role === 'supervisor';
+        return $this->role === self::ROLE_SUPERVISOR;
     }
-
     public function isManager(): bool
     {
-        return $this->role === 'manager';
+        return $this->role === self::ROLE_MANAGER;
     }
-
     public function isTeknisi(): bool
     {
-        return $this->role === 'teknisi';
+        return $this->role === self::ROLE_TEKNISI;
     }
 
+    public function hasRole(string ...$roles): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+        return in_array(strtolower($this->role), array_map('strtolower', $roles));
+    }
+
+    /**
+     * Scope query untuk filter role PMMT.
+     */
+    public function scopeRole($query, string ...$roles)
+    {
+        $roles = array_map('strtolower', $roles);
+        return $query->where(function ($q) use ($roles) {
+            foreach ($roles as $r) {
+                if ($r === 'admin') {
+                    $q->orWhereIn('level_pmmt', [self::ROLE_ADMIN, 'Superuser']);
+                } else {
+                    $q->orWhere('level_pmmt', ucfirst($r));
+                }
+            }
+        });
+    }
+
+    /**
+     * Relasi ke header logsheet (di database log_db).
+     */
     public function logsheets()
     {
-        return $this->hasMany(LogsheetHeader::class, 'teknisi_id');
+        return $this->hasMany(LogsheetHeader::class, 'teknisi_id', 'id_anggota');
     }
 
+    /**
+     * Relasi ke template form (di database log_db).
+     */
     public function createdTemplates()
     {
-        return $this->hasMany(FormTemplate::class, 'created_by');
+        return $this->hasMany(FormTemplate::class, 'created_by', 'id_anggota');
     }
 
+    /**
+     * Relasi ke log approval (di database log_db).
+     */
     public function approvalLogs()
     {
-        return $this->hasMany(ApprovalLog::class);
+        return $this->hasMany(ApprovalLog::class, 'user_id', 'id_anggota');
     }
 }

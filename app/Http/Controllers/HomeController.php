@@ -19,7 +19,7 @@ class HomeController extends Controller
         $completedToday = LogsheetHeader::where('status', 'selesai')
             ->whereDate('date', today())
             ->count();
-        
+
         $needAttentionToday = LogsheetDetail::where('condition_status', 'perlu_perhatian')
             ->whereHas('header', function ($q) {
                 $q->whereDate('date', today());
@@ -31,7 +31,19 @@ class HomeController extends Controller
             ->take(6)
             ->get();
 
-        $categories = Kategori::withCount('mesins')->get();
+        $categories = Kategori::withCount(['mesins' => function ($query) {
+            $query->where('status_aktif', 1);
+        }])->get();
+
+        $user = auth()->user();
+        // ponytail: Metrik adaptif per role tanpa query ganda.
+        $myPendingRevision = $user && $user->isTeknisi()
+            ? LogsheetHeader::where('teknisi_id', $user->id)->where('status', 'perlu_revisi')->count()
+            : LogsheetHeader::where('status', 'perlu_revisi')->count();
+
+        $mySubmittedToday = $user && $user->isTeknisi()
+            ? LogsheetHeader::where('teknisi_id', $user->id)->whereDate('date', today())->count()
+            : LogsheetHeader::whereDate('date', today())->count();
 
         return view('home', compact(
             'totalMachines',
@@ -40,18 +52,9 @@ class HomeController extends Controller
             'completedToday',
             'needAttentionToday',
             'recentLogsheets',
-            'categories'
+            'categories',
+            'myPendingRevision',
+            'mySubmittedToday'
         ));
-    }
-
-    public function switchRole(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        session(['demo_user_id' => $request->user_id]);
-
-        return back()->with('success', 'Berhasil beralih profil demo.');
     }
 }
