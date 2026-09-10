@@ -16,7 +16,7 @@
             </div>
             <div>
                 <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-900">
-                    Role Aktif: <strong class="text-emerald-700 ml-1 uppercase">{{ $currentUser->role ?? 'SPV' }}</strong>
+                    Role Aktif: <strong class="text-emerald-700 ml-1 font-bold">{{ $currentUser->role ?? 'Teknisi' }}</strong>
                 </span>
             </div>
         </div>

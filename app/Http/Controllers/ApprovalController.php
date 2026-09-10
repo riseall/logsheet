@@ -75,8 +75,16 @@ class ApprovalController extends Controller
      */
     public function approve(Request $request, LogsheetHeader $logsheet)
     {
-        $actor = auth()->user() ?? User::where('role', 'supervisor')->first();
+        $actor = auth()->user() ?? User::role(User::ROLE_SUPERVISOR, User::ROLE_ADMIN)->first();
         $note = $request->input('note', 'Disetujui.');
+
+        // ponytail: Guard role per tahap approval
+        if ($logsheet->status === 'menunggu_spv' && !$actor->isSupervisor() && !$actor->isAdmin()) {
+            return back()->with('error', 'Hanya Supervisor atau Admin yang berhak menyetujui tahap ini.');
+        }
+        if ($logsheet->status === 'menunggu_manager' && !$actor->isManager() && !$actor->isAdmin()) {
+            return back()->with('error', 'Hanya Manager atau Admin yang berhak menyetujui tahap akhir ini.');
+        }
 
         DB::beginTransaction();
         try {
@@ -91,7 +99,7 @@ class ApprovalController extends Controller
                 ApprovalLog::create([
                     'logsheet_header_id' => $logsheet->id,
                     'user_id' => $actor->id,
-                    'role' => 'supervisor',
+                    'role' => User::ROLE_SUPERVISOR,
                     'action' => 'approve',
                     'note' => $note,
                 ]);
@@ -108,7 +116,7 @@ class ApprovalController extends Controller
                 ApprovalLog::create([
                     'logsheet_header_id' => $logsheet->id,
                     'user_id' => $actor->id,
-                    'role' => 'manager',
+                    'role' => User::ROLE_MANAGER,
                     'action' => 'approve',
                     'note' => $note,
                 ]);
@@ -138,8 +146,16 @@ class ApprovalController extends Controller
             'note.min' => 'Catatan revisi minimal 3 karakter.',
         ]);
 
-        $actor = auth()->user() ?? User::where('role', 'supervisor')->first();
+        $actor = auth()->user() ?? User::role(User::ROLE_SUPERVISOR, User::ROLE_ADMIN)->first();
         $note = $request->input('note');
+
+        // ponytail: Guard role per tahap reject
+        if ($logsheet->status === 'menunggu_spv' && !$actor->isSupervisor() && !$actor->isAdmin()) {
+            return back()->with('error', 'Hanya Supervisor atau Admin yang berhak menolak/merevisi tahap ini.');
+        }
+        if ($logsheet->status === 'menunggu_manager' && !$actor->isManager() && !$actor->isAdmin()) {
+            return back()->with('error', 'Hanya Manager atau Admin yang berhak menolak tahap ini.');
+        }
 
         DB::beginTransaction();
         try {
@@ -154,7 +170,7 @@ class ApprovalController extends Controller
                 ApprovalLog::create([
                     'logsheet_header_id' => $logsheet->id,
                     'user_id' => $actor->id,
-                    'role' => 'supervisor',
+                    'role' => User::ROLE_SUPERVISOR,
                     'action' => 'reject',
                     'note' => $note,
                 ]);
@@ -171,7 +187,7 @@ class ApprovalController extends Controller
                 ApprovalLog::create([
                     'logsheet_header_id' => $logsheet->id,
                     'user_id' => $actor->id,
-                    'role' => 'manager',
+                    'role' => User::ROLE_MANAGER,
                     'action' => 'reject',
                     'note' => $note,
                 ]);

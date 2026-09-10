@@ -15,9 +15,9 @@
                 </p>
             </div>
             <div>
-                <button onclick="window.print()" class="inline-flex items-center px-4 py-2 rounded-lg text-xs font-semibold text-[#1E3A5F] bg-slate-100 hover:bg-slate-200 transition">
+                <x-button onclick="window.print()" variant="secondary" size="sm">
                     🖨️ Cetak Ringkasan
-                </button>
+                </x-button>
             </div>
         </div>
     </div>
@@ -29,75 +29,73 @@
                 <!-- Start Date -->
                 <div>
                     <label class="block text-[11px] font-semibold text-[#1E3A5F] mb-1">Dari Tanggal</label>
-                    <input type="date" name="start_date" value="{{ request('start_date') }}"
-                           class="w-full text-xs rounded-lg border-slate-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 py-1.5 px-2.5">
+                    <x-input type="date" name="start_date" value="{{ request('start_date') }}" />
                 </div>
 
                 <!-- End Date -->
                 <div>
                     <label class="block text-[11px] font-semibold text-[#1E3A5F] mb-1">Sampai Tanggal</label>
-                    <input type="date" name="end_date" value="{{ request('end_date') }}"
-                           class="w-full text-xs rounded-lg border-slate-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 py-1.5 px-2.5">
+                    <x-input type="date" name="end_date" value="{{ request('end_date') }}" />
                 </div>
 
                 <!-- Kategori -->
                 <div>
                     <label class="block text-[11px] font-semibold text-[#1E3A5F] mb-1">Kategori Mesin</label>
-                    <select name="category_id" class="w-full text-xs rounded-lg border-slate-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 py-1.5 px-2.5">
+                    <x-select name="category_id">
                         <option value="">Semua Kategori</option>
                         @foreach($categories as $c)
                             <option value="{{ $c->id }}" {{ request('category_id') == $c->id ? 'selected' : '' }}>
                                 {{ $c->name }}
                             </option>
                         @endforeach
-                    </select>
+                    </x-select>
                 </div>
 
                 <!-- Bangunan -->
                 <div>
                     <label class="block text-[11px] font-semibold text-[#1E3A5F] mb-1">Gedung / Bangunan</label>
-                    <select name="building_id" class="w-full text-xs rounded-lg border-slate-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 py-1.5 px-2.5">
+                    <x-select name="building_id">
                         <option value="">Semua Gedung</option>
                         @foreach($buildings as $b)
                             <option value="{{ $b->id }}" {{ request('building_id') == $b->id ? 'selected' : '' }}>
                                 {{ $b->name }}
                             </option>
                         @endforeach
-                    </select>
+                    </x-select>
                 </div>
 
                 <!-- Shift -->
                 <div>
                     <label class="block text-[11px] font-semibold text-[#1E3A5F] mb-1">Shift Kerja</label>
-                    <select name="shift" class="w-full text-xs rounded-lg border-slate-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 py-1.5 px-2.5">
+                    <x-select name="shift">
                         <option value="">Semua Shift</option>
                         <option value="1" {{ request('shift') == '1' ? 'selected' : '' }}>Shift 1</option>
                         <option value="2" {{ request('shift') == '2' ? 'selected' : '' }}>Shift 2</option>
                         <option value="3" {{ request('shift') == '3' ? 'selected' : '' }}>Shift 3</option>
-                    </select>
+                    </x-select>
                 </div>
 
                 <!-- Status Approval -->
                 <div>
                     <label class="block text-[11px] font-semibold text-[#1E3A5F] mb-1">Status Approval</label>
-                    <select name="status" class="w-full text-xs rounded-lg border-slate-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 py-1.5 px-2.5">
+                    <x-select name="status">
                         <option value="">Semua Status</option>
                         <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
                         <option value="menunggu_spv" {{ request('status') == 'menunggu_spv' ? 'selected' : '' }}>Menunggu SPV</option>
                         <option value="menunggu_manager" {{ request('status') == 'menunggu_manager' ? 'selected' : '' }}>Menunggu Manager</option>
                         <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
                         <option value="perlu_revisi" {{ request('status') == 'perlu_revisi' ? 'selected' : '' }}>Perlu Revisi</option>
-                    </select>
+                    </x-select>
                 </div>
             </div>
 
             <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
-                <a href="{{ route('laporan.index') }}" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
+                <x-button href="{{ route('laporan.index') }}" variant="ghost" size="xs">
                     Reset Filter
-                </a>
-                <button type="submit" class="px-5 py-1.5 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">
+                </x-button>
+                <x-button type="submit" variant="teal" size="xs">
                     Terapkan Filter
-                </button>
+                </x-button>
             </div>
         </form>
     </div>

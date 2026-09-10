@@ -46,25 +46,23 @@
                 <!-- Tanggal -->
                 <div>
                     <label class="block text-xs font-semibold text-[#1E3A5F] mb-1.5">Tanggal Pemeriksaan *</label>
-                    <input type="date" name="date" value="{{ old('date', date('Y-m-d')) }}" required
-                           class="w-full text-sm rounded-lg border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 shadow-sm p-2.5">
+                    <x-input type="date" name="date" value="{{ old('date', date('Y-m-d')) }}" required />
                 </div>
 
                 <!-- Shift -->
                 <div>
                     <label class="block text-xs font-semibold text-[#1E3A5F] mb-1.5">Shift Kerja *</label>
-                    <select name="shift" required class="w-full text-sm rounded-lg border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 shadow-sm p-2.5">
+                    <x-select name="shift" required>
                         <option value="1" {{ old('shift') == '1' ? 'selected' : '' }}>Shift 1 (Pagi: 07.00 - 15.00)</option>
                         <option value="2" {{ old('shift') == '2' ? 'selected' : '' }}>Shift 2 (Sore: 15.00 - 23.00)</option>
                         <option value="3" {{ old('shift') == '3' ? 'selected' : '' }}>Shift 3 (Malam: 23.00 - 07.00)</option>
-                    </select>
+                    </x-select>
                 </div>
 
                 <!-- Petugas Teknisi -->
                 <div>
                     <label class="block text-xs font-semibold text-[#1E3A5F] mb-1.5">Petugas / Teknisi</label>
-                    <input type="text" readonly value="{{ $currentUser->name ?? 'Teknisi Demo' }}"
-                           class="w-full text-sm rounded-lg border-slate-200 bg-slate-50 text-slate-500 shadow-sm cursor-not-allowed p-2.5">
+                    <x-input type="text" readonly disabled value="{{ $currentUser->name ?? 'Teknisi Demo' }}" />
                 </div>
             </div>
         </div>
@@ -112,12 +110,11 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <input type="text" 
+                                    <x-input type="text" 
                                            name="params[{{ $param->id }}][value]" 
                                            value="{{ old('params.' . $param->id . '.value') }}"
                                            placeholder="Isi hasil periksa..."
-                                           required
-                                           class="w-full text-sm rounded-lg border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 shadow-sm py-1.5 px-3">
+                                           required />
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center space-x-3">
@@ -145,7 +142,7 @@
                             <tr>
                                 <td colspan="5" class="px-6 py-8 text-center text-slate-400">
                                     Belum ada parameter untuk mesin ini. Silakan atur terlebih dahulu di menu 
-                                    <a href="{{ route('form-builder.edit', $machine->id) }}" class="text-emerald-700 font-semibold underline">Form Builder</a>.
+                                    Kelola Parameter (pada Dashboard Mesin).
                                 </td>
                             </tr>
                         @endforelse
@@ -160,14 +157,12 @@
                 <span class="font-semibold text-[#1E3A5F]">Catatan:</span> Klik "Submit Logsheet" untuk langsung meneruskan data ke antrian approval Supervisor.
             </div>
             <div class="flex items-center space-x-3 w-full sm:w-auto">
-                <button type="submit" name="action" value="draft" 
-                        class="w-1/2 sm:w-auto px-5 py-2.5 rounded-lg text-sm font-semibold text-[#1E3A5F] bg-slate-100 hover:bg-slate-200 transition">
+                <x-button type="submit" name="action" value="draft" variant="secondary" size="base">
                     Simpan Draft
-                </button>
-                <button type="submit" name="action" value="submit" 
-                        class="w-1/2 sm:w-auto px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/20 hover:shadow-emerald-600/40 transition">
+                </x-button>
+                <x-button type="submit" name="action" value="submit" variant="teal" size="base">
                     🚀 Submit Logsheet
-                </button>
+                </x-button>
             </div>
         </div>
 

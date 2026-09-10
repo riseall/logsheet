@@ -30,17 +30,36 @@
                 </p>
             </div>
 
-            <!-- Single-decision Action Buttons (CauseConnect Action vs Destructive) -->
-            @if(in_array($logsheet->status, ['menunggu_spv', 'menunggu_manager']))
+            <!-- Single-decision Action Buttons (Role-Aware) -->
+            @php
+                $canAction = false;
+                if (isset($currentUser)) {
+                    if ($logsheet->status === 'menunggu_spv' && ($currentUser->isSupervisor() || $currentUser->isAdmin())) {
+                        $canAction = true;
+                    } elseif ($logsheet->status === 'menunggu_manager' && ($currentUser->isManager() || $currentUser->isAdmin())) {
+                        $canAction = true;
+                    }
+                }
+            @endphp
+
+            @if($canAction)
                 <div class="flex items-center space-x-3">
-                    <button @click="rejectModal = true" 
-                            class="px-5 py-2.5 rounded-lg text-sm font-semibold text-[#DC2626] bg-rose-50 hover:bg-rose-100 border border-rose-200 transition">
+                    <x-button @click="rejectModal = true" variant="danger" outline size="base">
                         ✕ Tolak / Revisi
-                    </button>
-                    <button @click="approveModal = true" 
-                            class="px-6 py-2.5 rounded-lg text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/20 hover:shadow-emerald-600/40 transition">
+                    </x-button>
+                    <x-button @click="approveModal = true" variant="success" size="base">
                         ✓ Setujui (Approve)
-                    </button>
+                    </x-button>
+                </div>
+            @elseif(in_array($logsheet->status, ['menunggu_spv', 'menunggu_manager']))
+                <div class="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 space-x-1.5">
+                    @if($logsheet->status === 'menunggu_spv')
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>Tahap ini menunggu verifikasi <strong>Supervisor</strong></span>
+                    @else
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <span>Tahap ini menunggu keputusan final <strong>Manager</strong></span>
+                    @endif
                 </div>
             @endif
         </div>
@@ -142,64 +161,46 @@
     </div>
 
     <!-- Approve Modal -->
-    <div x-show="approveModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4" style="display: none;">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border border-slate-200">
-            <h3 class="text-lg font-headline font-bold text-[#1E3A5F] mb-2">Konfirmasi Persetujuan (Approve)</h3>
-            <p class="text-xs text-slate-500 mb-4">
-                Satu keputusan untuk seluruh parameter pada submission ini.
-            </p>
+    <x-modal show="approveModal" title="Konfirmasi Persetujuan (Approve)" subtitle="Satu keputusan untuk seluruh parameter pada submission ini.">
+        <form action="{{ route('approval.approve', $logsheet->id) }}" method="POST" class="p-5 space-y-4">
+            @csrf
+            <div>
+                <label class="block text-xs font-semibold text-[#1E3A5F] mb-1">Catatan Tambahan (Opsional)</label>
+                <textarea name="note" rows="3" placeholder="Contoh: Kondisi mesin dalam batas toleransi normal."
+                          class="w-full text-xs rounded-xl bg-white border border-slate-200 p-3 text-slate-700 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 shadow-sm placeholder:text-slate-400"></textarea>
+            </div>
 
-            <form action="{{ route('approval.approve', $logsheet->id) }}" method="POST">
-                @csrf
-                <div class="mb-4">
-                    <label class="block text-xs font-semibold text-[#1E3A5F] mb-1">Catatan Tambahan (Opsional)</label>
-                    <textarea name="note" rows="3" placeholder="Contoh: Kondisi mesin dalam batas toleransi normal."
-                              class="w-full text-sm rounded-lg border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 shadow-sm p-3"></textarea>
-                </div>
-
-                <div class="flex justify-end space-x-3">
-                    <button type="button" @click="approveModal = false" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">
-                        Batal
-                    </button>
-                    <button type="submit" class="px-5 py-2 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">
-                        ✓ Ya, Setujui
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+            <div class="pt-2 flex justify-end space-x-2">
+                <x-button type="button" @click="approveModal = false" variant="secondary" size="sm">
+                    Batal
+                </x-button>
+                <x-button type="submit" variant="success" size="sm">
+                    ✓ Ya, Setujui
+                </x-button>
+            </div>
+        </form>
+    </x-modal>
 
     <!-- Reject Modal -->
-    <div x-show="rejectModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4" style="display: none;">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border border-slate-200">
-            <h3 class="text-lg font-headline font-bold text-[#DC2626] mb-2">Tolak / Minta Revisi</h3>
-            <p class="text-xs text-slate-500 mb-4">
-                @if($logsheet->status === 'menunggu_manager')
-                    Sesuai PRD §4, penolakan oleh Manager akan dikembalikan terlebih dahulu ke antrian Supervisor.
-                @else
-                    Penolakan oleh SPV akan langsung dikembalikan ke Teknisi untuk pengisian ulang.
-                @endif
-            </p>
+    <x-modal show="rejectModal" title="Tolak / Minta Revisi" subtitle="{{ $logsheet->status === 'menunggu_manager' ? 'Penolakan oleh Manager akan dikembalikan terlebih dahulu ke antrian Supervisor.' : 'Penolakan oleh SPV akan langsung dikembalikan ke Teknisi untuk pengisian ulang.' }}">
+        <form action="{{ route('approval.reject', $logsheet->id) }}" method="POST" class="p-5 space-y-4">
+            @csrf
+            <div>
+                <label class="block text-xs font-semibold text-[#1E3A5F] mb-1">Catatan Alasan Penolakan / Revisi *</label>
+                <textarea name="note" rows="3" required placeholder="Tuliskan alasan penolakan secara jelas..."
+                          class="w-full text-xs rounded-xl bg-white border border-rose-200 p-3 text-slate-700 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm placeholder:text-slate-400"></textarea>
+            </div>
 
-            <form action="{{ route('approval.reject', $logsheet->id) }}" method="POST">
-                @csrf
-                <div class="mb-4">
-                    <label class="block text-xs font-semibold text-[#1E3A5F] mb-1">Catatan Alasan Penolakan / Revisi *</label>
-                    <textarea name="note" rows="3" required placeholder="Tuliskan alasan penolakan secara jelas..."
-                              class="w-full text-sm rounded-lg border-rose-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 shadow-sm p-3"></textarea>
-                </div>
-
-                <div class="flex justify-end space-x-3">
-                    <button type="button" @click="rejectModal = false" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">
-                        Batal
-                    </button>
-                    <button type="submit" class="px-5 py-2 rounded-lg text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm transition">
-                        ✕ Konfirmasi Penolakan
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+            <div class="pt-2 flex justify-end space-x-2">
+                <x-button type="button" @click="rejectModal = false" variant="secondary" size="sm">
+                    Batal
+                </x-button>
+                <x-button type="submit" variant="danger" size="sm">
+                    ✕ Konfirmasi Penolakan
+                </x-button>
+            </div>
+        </form>
+    </x-modal>
 
 </div>
 @endsection
