@@ -14,6 +14,9 @@ class Mesin extends Model
     protected $fillable = [
         'name',
         'code',
+        'type',
+        'asset_number',
+        'room',
         'category_id',
         'building_id',
         'status_aktif',

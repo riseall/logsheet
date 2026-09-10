@@ -134,7 +134,7 @@ class LogsheetController extends Controller
         // Pastikan setiap mesin memiliki template aktif v1 jika belum ada
         foreach ($machines as $m) {
             if (!$m->latestTemplate) {
-                $admin = User::where('role', 'admin')->first() ?? User::first();
+                $admin = auth()->user() ?? User::first();
                 $tmpl = FormTemplate::create([
                     'machine_id' => $m->id,
                     'version' => 1,
@@ -159,7 +159,7 @@ class LogsheetController extends Controller
 
         // Jika mesin belum memiliki template form, buat versi default 1
         if (!$template) {
-            $admin = User::where('role', 'admin')->first() ?? User::first();
+            $admin = auth()->user() ?? User::first();
             $template = FormTemplate::create([
                 'machine_id' => $machine->id,
                 'version' => 1,
@@ -186,7 +186,7 @@ class LogsheetController extends Controller
         ]);
 
         $status = $request->action === 'submit' ? 'menunggu_spv' : 'draft';
-        $user = auth()->user() ?? User::where('role', 'teknisi')->first() ?? User::first();
+        $user = auth()->user() ?? User::first();
 
         DB::beginTransaction();
         try {
