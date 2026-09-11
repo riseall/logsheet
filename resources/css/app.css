@@ -1,3 +1,4 @@
+@import "select2/dist/css/select2.min.css";
 @import "@fontsource/open-sans/latin.css";
 @import "@fontsource/open-sans/latin-italic.css";
 @import "@fontsource/nunito/latin.css";
@@ -30,6 +31,20 @@
         @apply bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 block w-full py-1.5 px-3 transition disabled:bg-gray-100 disabled:cursor-not-allowed;
     }
 
+    /* Global Select Style (Ponytail minimal @tailwindcss/forms equivalent) */
+    select, .form-select {
+        @apply bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 block w-full py-2 pl-3 pr-10 shadow-sm transition disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed appearance-none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.25em 1.25em;
+    }
+    
+    select[multiple], select[size] {
+        background-image: none;
+        padding-right: 0.75rem;
+    }
+
     /* Base Button */
     .btn {
         @apply inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-4 box-border disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none rounded-lg text-sm px-5 py-2.5;
@@ -41,19 +56,19 @@
     }
 
     /* Button Sizes */
-    .btn-xs   { @apply px-3 py-2 text-xs; }
-    .btn-sm   { @apply px-3 py-2 text-sm; }
-    .btn-base { @apply px-5 py-2.5 text-sm; }
-    .btn-lg   { @apply px-5 py-3 text-base; }
-    .btn-xl   { @apply px-6 py-3.5 text-base; }
+    .btn-xs   { @apply px-2 py-1 text-[11px]; }
+    .btn-sm   { @apply px-2.5 py-1.5 text-xs; }
+    .btn-base { @apply px-4 py-2 text-sm; }
+    .btn-lg   { @apply px-5 py-2.5 text-base; }
+    .btn-xl   { @apply px-6 py-3 text-lg; }
 
     /* Icon Button (Square padding for icon-only buttons) */
-    .btn-icon      { @apply p-2.5; }
-    .btn-icon-xs   { @apply p-1.5 text-xs; }
-    .btn-icon-sm   { @apply p-2 text-sm; }
-    .btn-icon-base { @apply p-2.5 text-sm; }
-    .btn-icon-lg   { @apply p-3 text-base; }
-    .btn-icon-xl   { @apply p-3.5 text-base; }
+    .btn-icon      { @apply p-2; }
+    .btn-icon-xs   { @apply p-1 text-[11px]; }
+    .btn-icon-sm   { @apply p-1.5 text-xs; }
+    .btn-icon-base { @apply p-2 text-sm; }
+    .btn-icon-lg   { @apply p-2.5 text-base; }
+    .btn-icon-xl   { @apply p-3 text-lg; }
 
     /* Solid Variants */
     .btn-default, .btn-brand { @apply text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 border border-transparent; }
@@ -258,4 +273,78 @@
 }
 .swal2-modal .swal2-actions .swal2-cancel:hover {
     background-color: #1e40af !important;
+}
+
+/* Select2 Tailwind Override Minimal (Matching .form-input) */
+.select2-container .select2-selection--single {
+    height: 30px !important;
+    border: 1px solid #d1d5db !important; /* gray-300 */
+    border-radius: 0.5rem !important; /* rounded-lg */
+    background-color: #f9fafb !important; /* gray-50 */
+    box-shadow: none !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: 0.75rem !important; /* text-xs */
+    position: relative !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #111827 !important; /* gray-900 */
+    padding-left: 0.75rem !important; /* px-3 */
+    padding-right: 2.25rem !important; /* space for arrow + clear btn */
+    line-height: normal !important;
+    flex: 1 !important;
+    text-align: left !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+/* Properly position the clear (x) button */
+.select2-container--default .select2-selection--single .select2-selection__clear {
+    position: absolute !important;
+    right: 1.5rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    float: none !important;
+    color: #9ca3af !important; /* gray-400 */
+    font-size: 1rem !important;
+    z-index: 10;
+}
+.select2-container--default .select2-selection--single .select2-selection__clear:hover {
+    color: #ef4444 !important; /* red-500 */
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    position: absolute !important;
+    right: 0.5rem !important;
+    top: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+.select2-container--default.select2-container--open .select2-selection--single {
+    border-color: #14b8a6 !important; /* border-teal-500 */
+    box-shadow: 0 0 0 1px #14b8a6 !important; /* ring-1 ring-teal-500 */
+    outline: none !important;
+}
+.select2-dropdown {
+    border: 1px solid #d1d5db !important; /* gray-300 */
+    border-radius: 0.5rem !important; /* rounded-lg */
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+    font-size: 0.75rem !important; /* text-xs */
+    margin-top: 4px;
+    overflow: hidden;
+}
+.select2-search__field {
+    border-radius: 0.375rem !important; /* rounded-md */
+    border: 1px solid #d1d5db !important;
+    padding: 4px 8px !important;
+}
+.select2-search__field:focus {
+    outline: none !important;
+    border-color: #14b8a6 !important;
+    box-shadow: 0 0 0 1px #14b8a6 !important;
+}
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: #f0fdfa !important; /* teal-50 */
+    color: #0f766e !important; /* teal-700 */
 }

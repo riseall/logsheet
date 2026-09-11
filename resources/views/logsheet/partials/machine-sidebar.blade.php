@@ -79,13 +79,13 @@
                         </h3>
                         @if ($lastLogsheet)
                             <span class="text-[10px] text-slate-400 font-medium">
-                                {{ $lastLogsheet->date ? $lastLogsheet->date->format('d/m') : '' }}
+                                {{ $lastLogsheet->date ? $lastLogsheet->date->locale('id')->translatedFormat('d M Y') : '' }}
                             </span>
                         @endif
                     </div>
 
                     <div class="flex items-center justify-between text-[11px] text-slate-500">
-                        <span class="font-mono text-slate-400">{{ $m->code }}</span>
+                        <span class="font-mono text-slate-400">{{ $m->type }}</span>
                         <span class="text-[10px] px-2 py-0.5 rounded-md font-medium"
                             :class="activeId === {{ $m->id }} ? 'bg-teal-100 text-teal-800' :
                                 'bg-slate-100 text-slate-600'">
@@ -115,7 +115,7 @@
 
 @if ($currentUser && ($currentUser->isSupervisor() || $currentUser->isAdmin()))
     <div class="p-3 bg-white border-slate-200/80" x-data="{ showModal: false }">
-        <x-button @click="showModal = true" variant="teal" outline size="sm" class="w-full border-dashed">
+        <x-button @click="showModal = true" variant="teal" outline size="xs" class="w-full border-dashed">
             + Tambah Mesin Baru
         </x-button>
 
@@ -126,26 +126,27 @@
                 method="POST" class="p-5 space-y-4">
                 @csrf
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Mesin *</label>
-                    <x-input type="text" name="name" required placeholder="Contoh: Genset Utama" />
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Kode Mesin *</label>
-                    <x-input type="text" name="code" required placeholder="Contoh: GEN-01" />
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Mesin
+                        *</label>
+                    <select name="name" id="select2-pmmt" required
+                        class="w-full text-xs rounded-xl bg-white border border-slate-200 px-3 py-2 text-slate-700 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 shadow-sm"
+                        style="width: 100%">
+                        <option value="">-- Cari & Pilih Mesin --</option>
+                        @foreach ($pmmtMachines as $pmmt)
+                            <option value="{{ $pmmt->nama_mesin }}" data-type="{{ $pmmt->tipe_mesin }}"
+                                data-asset="{{ $pmmt->no_asset }}">{{ $pmmt->nama_mesin }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Tipe / Model</label>
-                        <x-input type="text" name="type" placeholder="Opsional" />
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Tipe / Jenis</label>
+                        <x-input type="text" name="type" id="input-type" placeholder="Tipe Mesin" />
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-700 mb-1">No. Asset</label>
-                        <x-input type="text" name="asset_number" placeholder="Opsional" />
+                        <x-input type="text" name="asset_number" id="input-asset" placeholder="No Asset" />
                     </div>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Ruangan / Lokasi Spesifik</label>
-                    <x-input type="text" name="room" placeholder="Opsional" />
                 </div>
                 <div class="pt-3 flex justify-end space-x-2">
                     <x-button type="button" @click="showModal = false" variant="secondary"

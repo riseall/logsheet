@@ -63,7 +63,6 @@ return [
             ]) : [],
         ],
 
-        // ponytail: Koneksi ke database user bersama (spk_phapros)
         'db_auth' => [
             'driver' => 'mysql',
             'host' => env('DB2_HOST', env('DB_HOST', '127.0.0.1')),
@@ -71,6 +70,23 @@ return [
             'database' => env('DB2_DATABASE', 'spk_phapros'),
             'username' => env('DB2_USERNAME', env('DB_USERNAME', 'root')),
             'password' => env('DB2_PASSWORD', env('DB_PASSWORD', '')),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+        ],
+
+        // Database PMMT
+        'db_pmmt' => [
+            'driver' => 'mysql',
+            'host' => env('DB3_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB3_PORT', env('DB_PORT', '3306')),
+            'database' => env('DB3_DATABASE', 'pmmt'),
+            'username' => env('DB3_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('DB3_PASSWORD', env('DB_PASSWORD', '')),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',

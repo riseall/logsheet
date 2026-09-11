@@ -1,5 +1,7 @@
 require('./bootstrap');
-
+import $ from 'jquery';
+window.$ = window.jQuery = $;
+import 'select2';
 import Alpine from 'alpinejs';
 import Swal from 'sweetalert2';
 
@@ -104,3 +106,58 @@ document.addEventListener('submit', function (e) {
 
 // Initialize Alpine.js
 Alpine.start();
+
+// Initialize Global Select2 Components
+$(document).ready(function() {
+    // Apply Select2 to ALL standard select elements for a consistent UI
+    $('select').not('#select2-pmmt, .select2-pmmt-edit, .swal2-select').each(function() {
+        $(this).select2({
+            minimumResultsForSearch: 10, // Hide search box for small lists like Shift Kerja
+            width: '100%' // Ensure it fills the container like .form-input
+        });
+    });
+
+    // Logic for Edit Mesin modals (Multiple Modals on Page)
+    if ($('.select2-pmmt-edit').length) {
+        $('.select2-pmmt-edit').each(function() {
+            $(this).select2({
+                dropdownParent: $(this).parent(),
+                placeholder: "-- Cari & Pilih Mesin --",
+                allowClear: true,
+                width: '100%'
+            });
+        });
+
+        $('.select2-pmmt-edit').on('change', function() {
+            var selected = $(this).find('option:selected');
+            var form = $(this).closest('form');
+            if (selected.length > 0 && selected.val() !== "") {
+                form.find('.input-type-edit').val(selected.data('type'));
+                form.find('.input-asset-edit').val(selected.data('asset'));
+            } else {
+                form.find('.input-type-edit').val('');
+                form.find('.input-asset-edit').val('');
+            }
+        });
+    }
+
+    if ($('#select2-pmmt').length) {
+        $('#select2-pmmt').select2({
+            dropdownParent: $('#select2-pmmt').parent(),
+            placeholder: "-- Cari & Pilih Mesin --",
+            allowClear: true,
+            width: '100%'
+        });
+
+        $('#select2-pmmt').on('change', function() {
+            var selected = $(this).find('option:selected');
+            if (selected.length > 0 && selected.val() !== "") {
+                $('#input-type').val(selected.data('type'));
+                $('#input-asset').val(selected.data('asset'));
+            } else {
+                $('#input-type').val('');
+                $('#input-asset').val('');
+            }
+        });
+    }
+});

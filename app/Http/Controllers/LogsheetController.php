@@ -146,7 +146,9 @@ class LogsheetController extends Controller
 
         $selectedMachineId = $request->query('machine_id', $machines->first()->id ?? null);
 
-        return view('logsheet.machines', compact('category', 'building', 'machines', 'selectedMachineId'));
+        $pmmtMachines = DB::connection('db_pmmt')->table('mesins')->select('id', 'nama_mesin', 'tipe_mesin', 'no_asset')->get();
+
+        return view('logsheet.machines', compact('category', 'building', 'machines', 'selectedMachineId', 'pmmtMachines'));
     }
 
     /**

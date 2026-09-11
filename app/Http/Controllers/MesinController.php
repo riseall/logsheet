@@ -21,18 +21,19 @@ class MesinController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255',
             'type' => 'nullable|string|max:255',
             'asset_number' => 'nullable|string|max:255',
-            'room' => 'nullable|string|max:255',
         ]);
+
+        $nextId = Mesin::max('id') + 1;
+        $code = 'MSN-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
 
         Mesin::create([
             'name' => $request->name,
-            'code' => $request->code,
+            'code' => $code,
             'type' => $request->type,
             'asset_number' => $request->asset_number,
-            'room' => $request->room,
+            'room' => null,
             'category_id' => $category->id,
             'building_id' => $building->id,
             'status_aktif' => true,

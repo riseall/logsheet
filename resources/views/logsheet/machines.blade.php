@@ -120,7 +120,7 @@
                                 @if ($currentUser && ($currentUser->isSupervisor() || $currentUser->isAdmin()))
                                     <div x-data="{ showEditModal: false }">
                                         <x-button @click="showEditModal = true" icon outline variant="warning"
-                                            sr="Edit Mesin" size="xs">
+                                            title="Edit Mesin" size="xs">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                 fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                                 <path
@@ -135,37 +135,49 @@
                                             <form action="{{ route('logsheet.machine.update', $machine->id) }}"
                                                 method="POST" class="p-5 space-y-4">
                                                 @csrf @method('PUT')
+                                                <input type="hidden" name="code" value="{{ $machine->code }}">
                                                 <div>
                                                     <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama
-                                                        Mesin *</label>
-                                                    <x-input type="text" name="name" value="{{ $machine->name }}"
-                                                        required />
-                                                </div>
-                                                <div>
-                                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Kode
-                                                        Mesin *</label>
-                                                    <x-input type="text" name="code" value="{{ $machine->code }}"
-                                                        required />
+                                                        Mesin (Pilih dari PMMT) *</label>
+                                                    <select name="name" required
+                                                        class="select2-pmmt-edit w-full text-xs rounded-xl bg-white border border-slate-200 px-3 py-2 text-slate-700 focus:ring-2 focus:ring-teal-500 shadow-sm"
+                                                        style="width: 100%">
+                                                        <option value="">-- Cari & Pilih Mesin --</option>
+                                                        @php $found = false; @endphp
+                                                        @foreach ($pmmtMachines as $pmmt)
+                                                            @php
+                                                                if ($machine->name == $pmmt->nama_mesin) {
+                                                                    $found = true;
+                                                                }
+                                                            @endphp
+                                                            <option value="{{ $pmmt->nama_mesin }}"
+                                                                data-type="{{ $pmmt->tipe_mesin }}"
+                                                                data-asset="{{ $pmmt->no_asset }}"
+                                                                {{ $machine->name == $pmmt->nama_mesin ? 'selected' : '' }}>
+                                                                {{ $pmmt->nama_mesin }}</option>
+                                                        @endforeach
+
+                                                        @if (!$found && $machine->name)
+                                                            <option value="{{ $machine->name }}"
+                                                                data-type="{{ $machine->type }}"
+                                                                data-asset="{{ $machine->asset_number }}" selected>
+                                                                {{ $machine->name }} (Manual)</option>
+                                                        @endif
+                                                    </select>
                                                 </div>
                                                 <div class="grid grid-cols-2 gap-3">
                                                     <div>
                                                         <label class="block text-[11px] font-bold text-slate-700 mb-1">Tipe
-                                                            / Model</label>
+                                                            / Jenis</label>
                                                         <x-input type="text" name="type" value="{{ $machine->type }}"
-                                                            placeholder="Opsional" />
+                                                            class="input-type-edit" placeholder="Tipe Mesin" />
                                                     </div>
                                                     <div>
                                                         <label class="block text-[11px] font-bold text-slate-700 mb-1">No.
                                                             Asset</label>
-                                                        <x-input type="text" name="asset_number"
-                                                            value="{{ $machine->asset_number }}" placeholder="Opsional" />
+                                                        <x-input type="text" name="asset_number" class="input-asset-edit"
+                                                            value="{{ $machine->asset_number }}" placeholder="No. Asset" />
                                                     </div>
-                                                </div>
-                                                <div>
-                                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Ruangan /
-                                                        Lokasi Spesifik</label>
-                                                    <x-input type="text" name="room" value="{{ $machine->room }}"
-                                                        placeholder="Opsional" />
                                                 </div>
                                                 <div class="pt-3 flex justify-end space-x-2">
                                                     <x-button type="button" @click="showEditModal = false"
@@ -181,7 +193,8 @@
                                         data-confirm="Apakah Anda yakin ingin menonaktifkan mesin ini?"
                                         data-confirm-title="Nonaktifkan Mesin" data-confirm-button="Ya, Nonaktifkan">
                                         @csrf @method('DELETE')
-                                        <x-button type="submit" icon outline variant="danger" size="xs">
+                                        <x-button type="submit" icon outline variant="danger" size="xs"
+                                            title="Hapus Mesin">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                 fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                                 <path
